@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - .db.env
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/crystalcastle/postgres-data:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - crystalcastle
+  crystalcastle:
+    build: .
+    restart: always
+    ports:
+      - "9292:9292"
+    depends_on:
+      - db
+    volumes:
+      - /etc/crystalcastle/worker-logs:/app/worker/logs
+    links:
+      - db:db
+    networks:
+      - crystalcastle
+
+networks:
+  crystalcastle:
+    driver: bridge

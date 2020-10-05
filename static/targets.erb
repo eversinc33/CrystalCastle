@@ -1,0 +1,274 @@
+<%= erb :header %>
+
+<style>
+  .pointer-hover.pointer {
+      cursor: pointer;
+  }
+
+</style>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-6 offset-lg-2">
+      <div class="list-group w-100">
+
+        <% if @hosts.to_a.empty? or @scan_running %>
+          <div class="w-100 list-group-item text-primary">
+            <% if @hosts.to_a.empty? and not @scan_running%>
+              <span>Database empty. Run worker first.</span>
+            <% else %>
+              <span>Scan is running...</span>
+            <% end %>
+          </div>
+        <% end %>
+
+
+          <div class="w-100 list-group-item text-primary">
+              <div class="row">
+                <form method="post" action="/go">
+                  <button type="submit" class="btn btn-primary" <% if @scan_running %>disabled<% end %>>Start scan</button>
+                </form>
+                <form method="post" action="/reset">
+                  <button type="submit" class="btn btn-warning" <% if @scan_running or @hosts.to_a.empty? %>disabled<% end %>>Reset database</button>
+                </form>
+              </div>
+          </div>
+
+        <% unless @hosts.to_a.empty? %>
+
+          <% @hosts.each_with_index do |h, index| %>
+            <div class="row">
+              <div class="col-11">
+              <!-- Title bar -->
+                <a href="" class="list-group-item text-primary" data-toggle="collapse" data-target="#host<%= index %>">
+                  <% if h['os'] == "Windows" %>
+                    <img src="img/windows.png" width="25px">
+                  <% elsif h['os'] == "Linux" %>
+                    <img src="img/tux.png" width="25px">
+                  <% elsif h['os'] == "Offline" %>
+                    <img src="img/off.png" width="25px">
+                  <% else %>
+                    <img src="img/none.png" width="25px">
+                  <% end %>
+
+                  <%= h['hostname'] %>
+                </a>
+              </div>
+              <div class="col-1 my-auto mx-auto w-100 h-100 border-dark">
+                <div class="my-auto mx-auto pointer-hover  w-100 h-100">
+                  <form id="delete-<%= h['hostname'] %>" method="post" action="/delete_host">
+                    <input type="hidden" name="ip" value="<%= h['ip'] %>">
+                    <div class="ml-auto">
+                      <span onclick="document.getElementById('delete-<%= h['hostname'] %>').submit();" data-toggle="tooltip" data-placement="right" title="Delete <%= h['hostname'] %>">
+                        <i class="fa fa-times" style="color: darkred"></i>
+                      </span>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Infobox -->
+            <div id="host<%= index %>" class="rounded-bottom collapse">
+
+              <!-- tab nav -->
+              <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="general-tab<%= index %>" data-toggle="tab" href="#general<%= index %>" role="tab" aria-controls="general"
+                     aria-selected="true">General info</a>
+                </li>
+                <% unless @services.nil? or @services[h['ip']].count.eql? 0 %>
+                  <li class="nav-item">
+                    <a class="nav-link" id="services-tab<%= index %>" data-toggle="tab" href="#services<%= index %>" role="tab" aria-controls="services"
+                       aria-selected="false">Services</a>
+                  </li>
+                <% end %>
+                <% unless @pages.nil? or @pages[h['ip']].count.eql? 0 %>
+                  <li class="nav-item">
+                    <a class="nav-link" id="pages-tab<%= index %>" data-toggle="tab" href="#pages<%= index %>" role="tab" aria-controls="pages"
+                       aria-selected="false">Pages</a>
+                  </li>
+                <% end %>
+                <% unless @vulns.nil? or @vulns[h['ip']].count.eql? 0 %>
+                  <li class="nav-item">
+                    <a class="nav-link" id="vulns-tab<%= index %>" data-toggle="tab" href="#vulns<%= index %>" role="tab" aria-controls="pages"
+                       aria-selected="false">Tested vulnerabilities</a>
+                  </li>
+                <% end %>
+                <% unless @scans.nil? or @scans[h['ip']].count.eql? 0 %>
+                  <li class="nav-item">
+                    <a class="nav-link" id="scans-tab<%= index %>" data-toggle="tab" href="#scans<%= index %>" role="tab" aria-controls="pages"
+                       aria-selected="false">Scans</a>
+                  </li>
+                <% end %>
+              </ul>
+
+              <!-- tabs -->
+              <div class="tab-content" id="myTabContent">
+
+                <!-- general info -->
+                <div class="p-3 tab-pane fade show active text-light" id="general<%= index %>" role="tabpanel">
+                  <% if h['os'] != "Offline" %>
+                    IP: <%= h['ip'] %> <br>
+                    OS: <%= h['os'] %>
+                  <% else %>
+                    <p>Host is offline.</p>
+                  <% end %>
+                </div>
+
+                <!-- services -->
+                <div class="p-3 tab-pane fade" id="services<%= index %>" role="tabpanel">
+                  <table class="table table-sm text-light">
+                    <thead>
+                    <tr>
+                      <th scope="col">Port</th>
+                      <th scope="col">Service</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% unless @services.nil? or @services[h['ip']].nil? %>
+                      <% @services[h['ip']].each do |service| %>
+                        <tr>
+                          <td><%= service['port'] %></td>
+                          <td><%= service['service'] %></td>
+                        </tr>
+                      <% end %>
+                    <% end %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- pages -->
+                <% unless @pages.nil? or @pages[h['ip']].count.eql? 0 %>
+                  <div class="p-3 tab-pane fade" id="pages<%= index %>" role="tabpanel">
+                    <table class="table table-sm">
+                      <thead>
+                      <tr>
+                        <th scope="col">Port</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+
+                      <% @pages[h['ip']].each do |page| %>
+                        <tr>
+                          <td><%= page['port'] %></td>
+                          <td>
+                            <a href="http<% if page['page']['https'] %>s<% end %>://<%= h['ip'] %>:<%= page['port'] %><% unless page['page'].start_with? '/' %>/<% end %><%= page['page'] %>"><% unless page['page'].start_with? '/' %>/<% end %><%= page['page'] %></a>
+                          </td>
+                          <td><%= page['status'] %></td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% end %>
+
+                <!-- tested vulnerabilities -->
+                <% unless @vulns.nil? or @vulns[h['ip']].count.eql? 0 %>
+                  <div class="p-3 tab-pane fade" id="vulns<%= index %>" role="tabpanel">
+                    <table class="table table-sm text-light">
+                      <thead>
+                      <tr>
+                        <th scope="col">Service</th>
+                        <th scope="col">Port</th>
+                        <th scope="col">Vulnerability</th>
+                        <th scope="col">Vulnerable?</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+
+                      <% @vulns[h['ip']].each do |vuln| %>
+                        <tr>
+                          <td><%= vuln['service'] %></td>
+                          <td><%= vuln['port'] %></td>
+                          <td><%= vuln['type'] %></td>
+                          <td>
+                            <% if vuln['vulnerable'] %>
+                              Yes
+                            <% else %>
+                              No
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% end %>
+
+                <!-- scans -->
+                <% unless @scans.nil? or @scans[h['ip']].count.eql? 0 %>
+                  <div class="p-3 tab-pane fade" id="scans<%= index %>" role="tabpanel">
+
+                    <!-- scan nav -->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <% @scans[h['ip']].each_with_index do |scan, i| %>
+                        <li class="nav-item">
+                          <% if i.eql? 0 %>
+                            <a class="nav-link active" id="scan-tab<%= i %>_<%= index %>" data-toggle="tab" href="#scan<%= i %>_<%= index %>" role="tab" aria-controls="scan"
+                               aria-selected="true"><%= scan['type'] %><% if scan['port'] != '0' %>:<%= scan['port'] %><% end %></a>
+                          <% else %>
+                            <a class="nav-link" id="scan-tab<%= i %>_<%= index %>" data-toggle="tab" href="#scan<%= i %>_<%= index %>" role="tab" aria-controls="scan"
+                               aria-selected="false"><%= scan['type'] %><% if scan['port'] != '0' %>:<%= scan['port'] %><% end %></a>
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </ul>
+
+                    <div class="tab-content">
+                      <% @scans[h['ip']].each_with_index do |scan, i| %>
+                        <% if i.eql? 0 %>
+                          <div class="p-3 tab-pane fade show active" id="scan<%= i %>_<%= index %>" role="tabpanel">
+                        <% else %>
+                          <div class="p-3 tab-pane fade" id="scan<%= i %>_<%= index %>" role="tabpanel">
+                        <% end %>
+                        <pre><code class="text-light"><%= ERB::Util.h Base64.strict_decode64 scan['output'] %></code></pre>
+                        </div>
+                      <% end %>
+                      </div>
+                    </div>
+                <% end %>
+
+                <!-- end tabs -->
+
+                </div>
+              </div>
+
+          <% end %>
+
+        <% end %>
+
+        </div>
+      </div>
+
+      <div class="col-lg-2">
+        <div class="card" style="min-height: 400px">
+          <div class="card-header">
+            <div class="card-title text-primary">
+              Recent activity
+            </div>
+          </div>
+          <div class="card-body">
+            <% unless @recent_activity&.to_a %>
+              Everything is quiet around the castle...
+            <% end %>
+            <% @recent_activity&.each do |a| %>
+            <span class="small
+              <% if a["message"].include? "vulnerable" %>text-primary
+              <% end %>">[<%= a["time"] %>] <%= a["message"] %></span><br>
+            <% end %>
+          </div>
+          <div class="card-footer">
+            <a href="/logs">View logs</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2">
+      </div>
+    </div>
+
+  </div>
+</div>
+<%= erb :footer %>

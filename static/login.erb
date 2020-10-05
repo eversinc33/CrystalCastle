@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CrystalCastle - Enter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<!-- bootstrap -->
+<link id="pagestyle" rel="stylesheet" href="css/solar-bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="http://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+<script type="text/javascript" src="js/let_it_snow.min.js"></script>
+<div class="page_container">
+  <canvas width="100%" height="100%" class="snow"></canvas>
+</div>
+
+<script type="text/javascript">
+    $(document).ready( function() {
+        $("canvas.snow").let_it_snow({
+            windPower: 7,
+            speed: 3
+        });
+    });
+</script>
+
+<style>
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        position: fixed;
+    }
+</style>
+
+<main class="main">
+
+  <div class="container h-100">
+
+    <div style="margin-top: 15vh" class="row h-100 justify-content-center align-items-center">
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Who's there?</h3>
+        </div>
+        <div class="card-body">
+          <form action="/login" method="post">
+            <div class="input-group form-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+              </div>
+              <input name="username" type="text" class="form-control" placeholder="username">
+
+            </div>
+            <div class="input-group form-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+              </div>
+              <input name="password" type="password" class="form-control" placeholder="password">
+            </div>
+            <% if @failed.to_i.eql? 1 %><br><span class="error text-danger">Login failed</span><% end %>
+
+            <div class="form-group">
+              <input type="submit" value="Login" class="btn float-right login_btn">
+            </div>
+          </form>
+        </div>
+        <div class="card-footer">
+          <a href="https://github.com/fumamatar/CrystalCastle">About</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<%= erb :footer %>

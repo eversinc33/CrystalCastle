@@ -1,0 +1,5 @@
+output/
+scan.xml
+.idea/
+logs/
+scan_*

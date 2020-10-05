@@ -1,0 +1,8 @@
+# The port range nmap scans for (X-X where X is between 1 and 65535)
+"nmap_port_range": 1-10000
+# Specify hosts to scan as either a subnet (e.g 192.168.0.1/24) or as single hosts. IPv6 is supported
+"targets":
+    - 172.28.128.5
+    - 172.28.128.2
+    - 192.168.1.14
+    - 192.168.1.104

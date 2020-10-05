@@ -1,0 +1,14 @@
+<style>
+  #logout {
+      position: absolute;
+      right: 25px;
+      bottom: 10px;
+  }
+</style>
+<% unless session[:username].nil? %>
+  <div class="fixed-bottom">
+    <span id="logout">
+      <a href="https://github.com/fumamatar/crystalcastle">about</a> | <a href="logout"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+    </span>
+  </div>
+<% end %>

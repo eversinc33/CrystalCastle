@@ -1,0 +1,2 @@
+# uncomment below to run worker each sunday at 2:00am
+# 0 2 * * 0       ruby /app/main.rb

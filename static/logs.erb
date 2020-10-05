@@ -1,0 +1,26 @@
+<%= erb :header %>
+<div class="container-fluid">
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+      <div class="card" style="min-height: 400px">
+        <div class="card-header">
+          <div class="card-title text-primary">
+            Logs
+          </div>
+        </div>
+        <div class="card-body">
+          <% if @logs == "" %>
+            Everything is quiet around the castle...
+          <% else %>
+            <% @logs&.each do |log| %>
+              <span>[<%= log %></span><br>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2">
+    </div>
+  </div>
+</div>
+<%= erb :footer %>
